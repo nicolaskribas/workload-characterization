@@ -1,0 +1,35 @@
+---
+title: "Caracterização de cargas de trabalho"
+output: html_notebook
+---
+
+# Sobre este documento
+
+- Este arquivo é um *Notebook* do tipo *R Markdown*. [Guia de como começar](https://rmarkdown.rstudio.com/lesson-1.html).
+
+- Você pode executar um bloco de código colocando o cursor sobre ele e apertando *Ctrl+Shift+Enter*.
+
+- *Ctrl+Alt+I* insere um novo bloco de código.
+
+----
+
+# 1. Carregando e tratando o arquivo de log
+Dependências: rematch
+
+```{r}
+library("rematch")
+
+# Não foi identificado o significado do ultimo campo.
+# O campo de _url_ pode ainda ser melhor "dividido": separar entre o caminho e os parâmetros passados.
+pattern <- r"{^(?<client>\S+) - - \[(?<datetime>[\s\S]+)\] "(?<method>\w+) (?<url>\S+) (?<version>\S+)" (?<status>\d+) (?<size>\d+) "(?<referer>\S+)" "(?<agent>[\s\S]+)" "(?<ip_desconhecido>\S+)"$}"
+
+df = data.frame()
+for (line in readLines("access-head-2000.log")){
+	row <- rematch::re_match(pattern, line)
+	df <- rbind(df, row)
+}
+df$.match <- NULL
+
+print(df)
+
+```
