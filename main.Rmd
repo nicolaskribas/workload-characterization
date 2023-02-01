@@ -28,7 +28,22 @@ for (line in readLines("access-head-2000.log")){
 	row <- rematch::re_match(pattern, line)
 	df <- rbind(df, row)
 }
+
+# as.factor transforma em variáveis categóricas
+
 df$.match <- NULL
+df$client <- as.factor(df$client)
+df$datetime <- as.POSIXct(df$datetime, format = "%d/%b/%Y:%T %z")
+df$method <- as.factor(df$method)
+df$url <- as.factor(df$url)
+df$version <- as.factor(df$version)
+df$status <- as.factor(df$status)
+df$size <- as.integer(df$size)
+df$referer[df$referer == "-"] <- NA
+df$referer <- as.factor(df$referer)
+df$agent <- as.factor(df$agent)
+df$ip_desconhecido[df$ip_desconhecido == "-"] <- NA
+df$ip_desconhecido <- as.factor(df$ip_desconhecido)
 
 print(df)
 
