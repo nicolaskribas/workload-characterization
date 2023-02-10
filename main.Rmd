@@ -46,5 +46,44 @@ df$ip_desconhecido[df$ip_desconhecido == "-"] <- NA
 df$ip_desconhecido <- as.factor(df$ip_desconhecido)
 
 print(df)
+```
 
+# 2. Analisando o tamanho das requisições
+```{r}
+library("ggplot2")
+```
+
+
+```{r}
+ggplot(df[0:100,], aes(x = seq_along(size), y = sort(size), color=method)) + scale_y_continuous(labels = scales::comma) + geom_point()
+```
+
+```{r}
+# ordenar por tamanho
+#subset <- df_size_ordered[0:500,]$size
+#mean(subset)
+#sd(subset)
+#100 * sd(subset) / mean(subset)
+```
+
+```{r}
+df_size_ordered <- df[order(df$size),]
+```
+
+
+```{r}
+hist(df$size, breaks = 300)
+```
+
+```{r}
+hist(df[df$size < 100000,]$size, breaks = 8)
+```
+```{r}
+nrow(df[df$size < 60000,])
+```
+
+
+```{r}
+plot(df$datetime)
+2000/as.numeric(difftime(max(df$datetime), min(df$datetime), units = "secs"))
 ```
