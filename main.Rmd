@@ -44,7 +44,95 @@ df$referer <- as.factor(df$referer)
 df$agent <- as.factor(df$agent)
 df$ip_desconhecido[df$ip_desconhecido == "-"] <- NA
 df$ip_desconhecido <- as.factor(df$ip_desconhecido)
-
-print(df)
-
 ```
+
+## Um resumo do _dataset_
+```{r}
+summary(df)
+```
+
+# 2. Analisando os tipos de requisições
+```{r}
+summary(df$method)
+```
+
+```{r}
+nrow(df[df$method == "POST",])/nrow(df) * 100
+```
+Percentual de requisições usando *POST*.
+
+```{r}
+nrow(df[df$method == "HEAD",])/nrow(df) * 100
+```
+Percentual de requisições usando *HEAD*.
+
+---
+
+Requisições utilizando o método *POST* representaram menos de 1% do total.
+
+Requisições *HEAD* são quase identicas às *GET*:
+
+> The HEAD method is identical to GET except that the server MUST NOT return a message-body in the response.
+
+Sendo assim, em nossa carga trabalho todas a requisições serão do tipo *GET*.
+
+# 3. Analisando o tamanho das requisições
+
+Um resumo dos tamanhos das respostas:
+```{r}
+summary(df$size)
+```
+
+```{r}
+library("ggplot2")
+ggplot(df, aes(x = seq_along(size), y = sort(size) )) + scale_y_continuous(labels = scales::comma) + geom_point() + labs(y = "Size", x = "Index")
+```
+
+Retiramos _outliers_ (maiores que 125000 bits):
+```{r}
+library("ggplot2")
+ggplot(df[df$size < 125000,], aes(x = seq_along(size), y = sort(size) )) + scale_y_continuous(labels = scales::comma) + geom_point() + geom_hline(yintercept=8000, linetype="dashed") + geom_hline(yintercept=28000, linetype="dashed") + geom_hline(yintercept=45000, linetype="dashed") + labs(y = "Size", x = "Index") + annotate("text", label = "Pequena", x = 1900, y = 0) + annotate("text", label = "Média", x = 1900, y = 16000) + annotate("text", label = "Grande", x = 0, y = 37000) + annotate("text", label = "Gigante", x = 0, y = 80000) + scale_y_continuous(breaks = sort(c(seq(0, 120000, length.out=3), 8000, 28000, 45000)))
+```
+
+```{r}
+hg <- hist(df[df$size < 125000,]$size, freq = TRUE, breaks = c(0, 8000, 28000, 45000, 125000), labels = c("Pequenas", "Médias", "Grandes", "Gigantes"), xlab = "Size", ylim = c(0, 1100))
+```
+```{r}
+# pequenas
+hg$counts[1]/sum(hg$counts) * 100
+
+# médias
+hg$counts[2]/sum(hg$counts) * 100
+
+# grandes
+hg$counts[3]/sum(hg$counts) * 100
+
+# gigantes
+hg$counts[4]/sum(hg$counts) * 100
+```
+
+
+* 48,2% das requisições serão feitas para objetos de tamanho pequeno (0 a 8000 bits)
+* 15,1% das requisições serão feitas para objetos de tamanho médio (8000 a 28000 bits)
+* 34,2% das requisições serão feitas para objetos de tamanho grande (28000 a 45000 bits)
+* 2,6% das requisições serão feitas para objetos de tamanho gigante (45000 a 125000 bits)
+
+# 4. Analisando a frequência de chegada das requisições
+
+```{r}
+summary(df$datetime)
+```
+
+```{r}
+plot(df$datetime, ylab = "Tempo de chegada")
+```
+
+Requisições chegam na mesma frequência.
+
+```{r}
+nrow(df)/as.numeric(difftime(max(df$datetime), min(df$datetime), units = "secs"))
+```
+
+Média requisições por segundo
+
+Em nossa carga de trabalho utilizaremos uma taxa de 4,65 requisições por segundo.
