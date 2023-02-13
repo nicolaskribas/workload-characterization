@@ -1,5 +1,6 @@
 ---
 title: "Caracterização de cargas de trabalho"
+author: Cleiton Puttlitz; Juliano da Silva; Leandro Vieira; Marcelo Almeida; Nicolas Ribas
 output: html_notebook
 ---
 
@@ -56,17 +57,24 @@ summary(df)
 summary(df$method)
 ```
 
+
+
+
+*Percentual de requisições usando _POST_:*
 ```{r}
 nrow(df[df$method == "POST",])/nrow(df) * 100
 ```
-Percentual de requisições usando *POST*.
 
+
+
+
+*Percentual de requisições usando _HEAD_:*
 ```{r}
 nrow(df[df$method == "HEAD",])/nrow(df) * 100
 ```
-Percentual de requisições usando *HEAD*.
 
----
+
+
 
 Requisições utilizando o método *POST* representaram menos de 1% do total.
 
@@ -98,24 +106,40 @@ ggplot(df[df$size < 125000,], aes(x = seq_along(size), y = sort(size) )) + scale
 hg <- hist(df[df$size < 125000,]$size, freq = TRUE, breaks = c(0, 8000, 28000, 45000, 125000), labels = c("Pequenas", "Médias", "Grandes", "Gigantes"), xlab = "Size", ylim = c(0, 1100))
 ```
 ```{r}
-# pequenas
+# media de tamanho das pequenas
+mean(df[df$size >= 0     & df$size < 8000,]$size)
+
+# media de tamanho das medias
+mean(df[df$size >= 8000  & df$size < 28000,]$size)
+
+# media de tamanho das grandes
+mean(df[df$size >= 28000 & df$size < 45000,]$size)
+
+# media de tamanho das gigantes
+mean(df[df$size >= 45000 & df$size <= 125000,]$size)
+```
+
+```{r}
+# percentual das requisições que são pequenas
 hg$counts[1]/sum(hg$counts) * 100
 
-# médias
+# percentual das requisições que são medias
 hg$counts[2]/sum(hg$counts) * 100
 
-# grandes
+# percentual das requisições que são grandes
 hg$counts[3]/sum(hg$counts) * 100
 
-# gigantes
+# percentual das requisições que são gigantes
 hg$counts[4]/sum(hg$counts) * 100
 ```
 
 
-* 48,2% das requisições serão feitas para objetos de tamanho pequeno (0 a 8000 bits)
-* 15,1% das requisições serão feitas para objetos de tamanho médio (8000 a 28000 bits)
-* 34,2% das requisições serão feitas para objetos de tamanho grande (28000 a 45000 bits)
-* 2,6% das requisições serão feitas para objetos de tamanho gigante (45000 a 125000 bits)
+Em nossa carga de trabalho:
+
+* 48,2% das requisições serão feitas para objetos de tamanho pequeno (0 a 8000 bits e média de tamanho: 3344 bits)
+* 15,1% das requisições serão feitas para objetos de tamanho médio (8000 a 28000 bits e média de tamanho: 18336 bits)
+* 34,2% das requisições serão feitas para objetos de tamanho grande (28000 a 45000 bits e média de tamanho: 35656 bits)
+* 2,6% das requisições serão feitas para objetos de tamanho gigante (45000 a 125000 bits e média de tamanho: 72543 bits)
 
 # 4. Analisando a frequência de chegada das requisições
 
